@@ -23,13 +23,28 @@ function createBoard() {
         grid.push(rowCells)
     }
 }
-
-document.addEventListener("keydown", (e) => {
-    if (e.key === "Enter"){
-        submitGuess(); //to be built
-    } else if (e.key === "Backspace"){
-        deleteLetter(); //to be built
-    } else if (/^[a-zA-Z]$/.test(e.key)){
-        addLetter(e.key.toUpperCase()); //to be built
+function addLetter(letter){
+    if (currentCol < COLS){
+        grid[currentRow][currentCol].textContent = letter
+        currentCol++
     }
-});
+}
+
+function deleteLetter(){
+    
+}
+
+function handleKey(e) {
+  if (e.key === "Enter") {
+    submitGuess();
+  } else if (e.key === "Backspace") {
+    deleteLetter();
+  } else if (/^[a-zA-Z]$/.test(e.key)) {
+    addLetter(e.key.toUpperCase());
+  }
+}
+
+document.addEventListener("keydown", handleKey);
+
+createBoard();
+
