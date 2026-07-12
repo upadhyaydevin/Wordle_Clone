@@ -3,8 +3,25 @@ const COLS = 5;
 // --- State ---
 let currentRow = 0;
 let currentCol = 0;
-let answer = "";          // we'll load a random word here
+let validWords = []
+let validAnswers = []
+let answer = ""
 const grid = [];          // will hold the tile DOM elements
+
+async function loadWords(){
+    const responseValid = await fetch("valid-loadWords.txt")
+    const responseAnswer = await fetch("correct-answers.txt")
+    const answerText = await responseAnswer.text()
+    const wordsText = await responseValid.text()
+    validAnswers = answerText.split("\n")
+    const N = validAnswers.length
+    let answerIndex = Math.floor(Math.random()*N)
+    answer = validAnswers[answerIndex].trim()
+    validAnswers = new Set(validAnswers)
+    validWords = wordsText.split("\n")
+    validWords = new Set(validWords)
+    document.addEventListener("keydown", handleKey);
+}
 
 // builds the board
 function createBoard() {
@@ -31,7 +48,33 @@ function addLetter(letter){
 }
 
 function deleteLetter(){
+    if (currentCol != 0){
+        grid[currentRow][currentCol-1].textContent = ""
+        currentCol--
+    }
+}
+
+function validWord(checkWord){
+    return validWords.has(checkWord.toLowerCase())
+}
+
+function color(checkWord){
     
+
+}
+
+function submitGuess(){
+    let word = ""
+    if (currentCol == COLS){
+        for (let c=0; c<COLS; c++){
+            word += grid[currentRow][c].textContent
+        }
+        if (validWord(word) == true){
+            color(word)
+            currentRow++
+            currentCol = 0
+        }
+    }
 }
 
 function handleKey(e) {
@@ -44,7 +87,6 @@ function handleKey(e) {
   }
 }
 
-document.addEventListener("keydown", handleKey);
-
 createBoard();
+loadWords();
 
