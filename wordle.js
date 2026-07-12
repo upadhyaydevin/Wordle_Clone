@@ -46,7 +46,6 @@ function addLetter(letter){
         currentCol++
     }
 }
-
 function deleteLetter(){
     if (currentCol != 0){
         grid[currentRow][currentCol-1].textContent = ""
@@ -59,8 +58,32 @@ function validWord(checkWord){
 }
 
 function color(checkWord){
-    
+    checkWord = checkWord.toLowerCase()
+    let counts = new Map()
+    let resultColor = []
+    for (let j=0; j<5; j++){
+        counts.set(answer[j], (counts.get(answer[j]) || 0) + 1)
+    }
+    for (let i=0; i<5; i++){
+        if (answer[i] == checkWord[i]){
+            resultColor[i] = "green" 
+            counts.set(checkWord[i], counts.get(checkWord[i]) - 1)
+        }
+    }
+    for (let k=0; k<5; k++){
+        if (resultColor[k] == "green"){
+            continue
+        } 
+        if (counts.get(checkWord[k]) > 0){
+            resultColor[k] = "yellow"
+            counts.set(checkWord[i], counts.get(checkWord[i]) - 1)
 
+        }
+        else{
+            resultColor[k] = "gray"
+        }
+    }
+    return resultColor
 }
 
 function submitGuess(){
