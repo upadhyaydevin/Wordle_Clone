@@ -27,7 +27,8 @@ h1 {
   gap: 5px;
 }
 
-.tile {
+.cell {
+  overflow: hidden; /* removes the trailing pixel glitch */
   width: 50px;
   height: 50px;
   border: 3px solid #3a3a3c;
@@ -36,4 +37,8 @@ h1 {
   align-items: center;
   font-size: 24px;
   text-transform: uppercase;
+  color: white;
 }
+.green  { background-color: #6aaa64; border-color: #6aaa64; }
+.yellow { background-color: #c9b458; border-color: #c9b458; }
+.gray   { background-color: #3a3a3c; border-color: #3a3a3c; }
