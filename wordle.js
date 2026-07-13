@@ -76,14 +76,21 @@ function color(checkWord){
         } 
         if (counts.get(checkWord[k]) > 0){
             resultColor[k] = "yellow"
-            counts.set(checkWord[i], counts.get(checkWord[i]) - 1)
-
+            counts.set(checkWord[k], counts.get(checkWord[k]) - 1)
         }
         else{
             resultColor[k] = "gray"
         }
     }
     return resultColor
+}
+
+function revealRow(resultColor, row){
+    for (let i = 0; i < COLS; i++){
+        setTimeout(() => {
+            grid[row][i].classList.add(resultColor[i])
+        }, i * 300)
+    }
 }
 
 function submitGuess(){
