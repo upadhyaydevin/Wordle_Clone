@@ -6,10 +6,12 @@ let currentCol = 0;
 let validWords = []
 let validAnswers = []
 let answer = ""
+let gameOver = false
+let animating = false
 const grid = [];          // will hold the tile DOM elements
 
 async function loadWords(){
-    const responseValid = await fetch("valid-loadWords.txt")
+    const responseValid = await fetch("valid-words.txt")
     const responseAnswer = await fetch("correct-answers.txt")
     const answerText = await responseAnswer.text()
     const wordsText = await responseValid.text()
@@ -17,7 +19,9 @@ async function loadWords(){
     const N = validAnswers.length
     let answerIndex = Math.floor(Math.random()*N)
     answer = validAnswers[answerIndex].trim()
+    console.log(answer)
     validAnswers = new Set(validAnswers)
+
     validWords = wordsText.split("\n")
     validWords = new Set(validWords)
     document.addEventListener("keydown", handleKey);
@@ -66,14 +70,14 @@ function color(checkWord){
     }
     for (let i=0; i<5; i++){
         if (answer[i] == checkWord[i]){
-            resultColor[i] = "green" 
+            resultColor[i] = "green"
             counts.set(checkWord[i], counts.get(checkWord[i]) - 1)
         }
     }
     for (let k=0; k<5; k++){
         if (resultColor[k] == "green"){
             continue
-        } 
+        }
         if (counts.get(checkWord[k]) > 0){
             resultColor[k] = "yellow"
             counts.set(checkWord[k], counts.get(checkWord[k]) - 1)
@@ -95,26 +99,45 @@ function revealRow(resultColor, row){
 
 function submitGuess(){
     let word = ""
+    if (gameOver) return
+    
     if (currentCol == COLS){
         for (let c=0; c<COLS; c++){
             word += grid[currentRow][c].textContent
         }
         if (validWord(word) == true){
-            color(word)
+            let resultColor = color(word)
+            animating = true
+            revealRow(resultColor, currentRow)
+            setTimeout(() => {animating = false}, COLS * 300)
             currentRow++
             currentCol = 0
+
+            let didWin = (word.toLowerCase() === answer)
+            let revealTime = COLS * 300   // wait for the cascade to finish
+
+            if (didWin){
+                gameOver = true
+                setTimeout(() => alert(`You got Wordle in ${currentRow}!`), revealTime)
+            } else if (currentRow === ROWS){
+                gameOver = true
+                setTimeout(() => alert(`Game over! The word was ${answer.toUpperCase()}`), revealTime)
+            }
         }
     }
 }
 
 function handleKey(e) {
-  if (e.key === "Enter") {
-    submitGuess();
-  } else if (e.key === "Backspace") {
-    deleteLetter();
-  } else if (/^[a-zA-Z]$/.test(e.key)) {
-    addLetter(e.key.toUpperCase());
-  }
+    if (gameOver == false && animating == false){
+        if (e.key === "Enter") {
+        submitGuess();
+        } else if (e.key === "Backspace") {
+        deleteLetter();
+        } else if (/^[a-zA-Z]$/.test(e.key)) {
+        addLetter(e.key.toUpperCase());
+    }
+    }
+    
 }
 
 createBoard();
