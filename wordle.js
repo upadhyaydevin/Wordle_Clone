@@ -8,7 +8,8 @@ let validAnswers = []
 let answer = ""
 let gameOver = false
 let animating = false
-const grid = [];          // will hold the tile DOM elements
+const grid = []            // will hold the tile DOM elements
+const rows = []            // holds row DOM elements
 
 async function loadWords(){
     const responseValid = await fetch("valid-words.txt")
@@ -42,6 +43,7 @@ function createBoard() {
         }
         board.appendChild(row)
         grid.push(rowCells)
+        rows.push(row)
     }
 }
 function addLetter(letter){
@@ -123,8 +125,19 @@ function submitGuess(){
                 gameOver = true
                 setTimeout(() => alert(`Game over! The word was ${answer.toUpperCase()}`), revealTime)
             }
+        }else{
+            showToast("Not in word list")
+            rows[currentRow].classList.add('shake')
+            setTimeout(()=> {rows[currentRow].classList.remove('shake')}, 800)
         }
     }
+}
+
+function showToast(message){
+    const toast = document.getElementById("toast")
+    toast.textContent = message
+    toast.classList.add('visible')
+    setTimeout(()=> {toast.classList.remove('visible')}, 1200)
 }
 
 function handleKey(e) {
@@ -142,4 +155,37 @@ function handleKey(e) {
 
 createBoard();
 loadWords();
+
+const row1 = ["Q","W","E","R","T","Y","U","I","O","P"]
+const row2 = ["A","S","D","F","G","H","J","K","L"]
+const row3 = ["ENTER","Z","X","C","V","B",'N','M','DELETE']
+const keyboardRows = [row1, row2, row3]
+
+function createKeyboard(){
+    let keyboard = document.getElementById('keyboard')
+    for (const row of keyboardRows){
+        const keyboardRow = document.createElement('div')
+        keyboardRow.className = 'keyboard-row'
+        keyboard.appendChild(keyboardRow)
+        for (const element of row){
+            const key = document.createElement('button')
+            key.className = 'key'
+            key.textContent = element
+            if (element === 'ENTER' || element === 'DELETE'){
+                key.classList.add('key-special')
+            }
+            key.dataset.key = element // now it looks like <button class="key" data-key="A"> A </button>
+            keyboardRow.append(key)
+            key.addEventListener('click', ()=>{
+                if (gameOver == false && animating == false){
+                    if (element === 'ENTER'){submitGuess()}
+                    else if (element === 'DELETE'){deleteLetter()}
+                    else addLetter(element)
+                }
+            })
+        }
+    }
+}
+
+const keyColors = {}
 
