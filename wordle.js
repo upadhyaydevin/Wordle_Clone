@@ -8,6 +8,7 @@ let validAnswers = []
 let answer = ""
 let gameOver = false
 let animating = false
+const keyColors = {}
 const grid = []            // will hold the tile DOM elements
 const rows = []            // holds row DOM elements
 
@@ -91,10 +92,11 @@ function color(checkWord){
     return resultColor
 }
 
-function revealRow(resultColor, row){
+function revealRow(resultColor, row, word){
     for (let i = 0; i < COLS; i++){
         setTimeout(() => {
             grid[row][i].classList.add(resultColor[i])
+            updateKeyColor(word[i], resultColor[i]);
         }, i * 300)
     }
 }
@@ -110,7 +112,7 @@ function submitGuess(){
         if (validWord(word) == true){
             let resultColor = color(word)
             animating = true
-            revealRow(resultColor, currentRow)
+            revealRow(resultColor, currentRow, word)
             setTimeout(() => {animating = false}, COLS * 300)
             currentRow++
             currentCol = 0
@@ -153,9 +155,6 @@ function handleKey(e) {
     
 }
 
-createBoard();
-loadWords();
-
 const row1 = ["Q","W","E","R","T","Y","U","I","O","P"]
 const row2 = ["A","S","D","F","G","H","J","K","L"]
 const row3 = ["ENTER","Z","X","C","V","B",'N','M','DELETE']
@@ -187,5 +186,21 @@ function createKeyboard(){
     }
 }
 
-const keyColors = {}
-
+function updateKeyColor(letter, newColor){
+    letter = letter.toUpperCase();
+    const ranks = {'green': 3, 'yellow': 2, 'gray': 1}
+    currentRank = ranks[keyColors[letter]] || 0
+    newRank = ranks[newColor] || 0
+    if (newRank > currentRank){
+        keyColors[letter] = newColor
+        const keyElement = document.querySelector(`.key[data-key="${letter}"]`);
+        if (keyElement) {
+            // Remove any old color classes before applying the higher rank class
+            keyElement.classList.remove("green", "yellow", "gray");
+            keyElement.classList.add(newColor)
+        }
+    }
+}
+createBoard();
+loadWords();
+createKeyboard();
